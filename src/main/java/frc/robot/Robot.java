@@ -68,7 +68,6 @@ public class Robot extends LoggedRobot {
   
     m_robotContainer.score.logStickyFaults(); // Log sticky faults
     m_robotContainer.logClimbStickyFaults();
-    m_robotContainer.logDriveStickyFaults();
     
     
     System.out.println("________\n"); // just a divider

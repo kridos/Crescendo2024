@@ -24,9 +24,7 @@ import frc.robot.commands.IntakingCommand;
 import frc.robot.commands.ResetClimbCommand;
 import frc.robot.commands.ScoringCommand;
 import frc.robot.commands.TimedIntakeSetPowerCommand;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Climb;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Scoring;
 
@@ -35,46 +33,12 @@ public class RobotContainer {
   public final Limelight servo = new Limelight(score);
   public final Climb climbSub = new Climb();
 
-  // try switching maxspeed and maxangularspeed to see what happens
-  private double MaxSpeed = 5.22;/*TunerConstants.kSpeedAt12VoltsMps;*/ // kSpeedAt12VoltsMps desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController driverController = new CommandXboxController(0); // all joysticks initially negative (removed)
   CommandXboxController armController = new CommandXboxController(1);
   CommandXboxController testingController = new CommandXboxController(2);
-  XboxController driverXbox = new XboxController(0);
-  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.Velocity); // I want field-centric
-                                                               // driving in open loop
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
-  private final Telemetry logger = new Telemetry(MaxSpeed);
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() -> drive.withVelocityX(-driverController.getLeftY() * MaxSpeed) // Drive forward with Brian added - sign
-                                                                                           // negative Y (forward)
-            .withVelocityY(-driverController.getLeftX() * MaxSpeed) // Drive left with negative X (left) brian added - sign
-            .withRotationalRate(-driverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-    ));
-
-    driverController.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    driverController.b().whileTrue(drivetrain
-        .applyRequest(() -> point.withModuleDirection(new Rotation2d(driverController.getLeftY(), driverController.getLeftX()))));
-
-    // reset the field-centric heading on left bumper press
-    driverController.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative(new Pose2d())));
-
-    if (Utils.isSimulation()) {
-      drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
-    }
-    drivetrain.registerTelemetry(logger::telemeterize);
-
     driverController.povDown().onTrue(new InstantCommand(() -> 
       score.ext.setTargetInches(score.ext.getTargetInches() - 2)));
 
@@ -144,10 +108,6 @@ public class RobotContainer {
   public void logClimbStickyFaults() {
     climbSub.logMotorLeftStickyFaults();
     climbSub.logMotorRightStickyFaults();
-  }
-
-  public void logDriveStickyFaults() {
-    drivetrain.getStickyFaults();
   }
 
   public Command getAutonomousCommand() {
