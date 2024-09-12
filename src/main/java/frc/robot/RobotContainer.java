@@ -8,6 +8,7 @@ import java.io.File;
 
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.MathUtil;
@@ -16,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -45,6 +48,47 @@ public class RobotContainer {
   CommandXboxController testingController = new CommandXboxController(2);
 
   SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
+
+  SendableChooser<String> autoChooser;
+
+  private void setupAuto() {
+    autoChooser = new SendableChooser<String>();
+    autoChooser.addOption("Drive Forward (no scoring)", "ExitStarting");
+    autoChooser.addOption("Preload Only", "PreloadScoreAlign");
+    autoChooser.addOption("Preload + Center", "PreloadGrabCenter");
+    autoChooser.addOption("Preload + Close", "TwoNoteAlign");
+    autoChooser.addOption("Center + Preload", "CenterFirst");
+    autoChooser.addOption("Preload No Exit", "PreloadScoreAlignNoExit");
+
+    autoChooser.setDefaultOption("Preload + Close", "TwoNoteAlign");
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    Command armStore = new ScoringCommand(score, Constants.ScoringPos.STORE);
+    Command armAmp = new ScoringCommand(score, Constants.ScoringPos.AMP);
+    ;
+    Command armGround = new SequentialCommandGroup(
+        new ScoringCommand(score, Constants.ScoringPos.GROUND),
+        new IntakingCommand(score, 12));
+
+    Command outtake = new TimedIntakeSetPowerCommand(score, 10, 0.75);
+    Command outtakeSlow = new InstantCommand(() -> score.setIntakeVoltage(-5));
+    Command resetExt = new InstantCommand(() -> score.ext.runAndResetEncoder());
+    //Command align = new AlignSource2(drivebase, null, servo, true).withTimeout(2);
+    Command armUp = new ScoringCommand(score, Constants.ScoringPos.CLIMB);
+    // Command sweep = new SweepCommand(drivebase);
+
+    // NamedCommands.registerCommand("ArmStart", armStart);
+    NamedCommands.registerCommand("ArmStore", armStore);
+    NamedCommands.registerCommand("ArmGround", armGround);
+    NamedCommands.registerCommand("ArmAmp", armAmp);
+    NamedCommands.registerCommand("Outtake", outtake);
+    NamedCommands.registerCommand("ResetExt", resetExt);
+    //NamedCommands.registerCommand("AlignAmp", align);
+    NamedCommands.registerCommand("ArmUp", armUp);
+    NamedCommands.registerCommand("OuttakeSlow", outtakeSlow);
+
+  }
 
   private void configureBindings() {
 
@@ -126,6 +170,7 @@ public class RobotContainer {
 
   public RobotContainer() {
     configureBindings();
+    setupAuto();
   }
 
   public void logClimbStickyFaults() {
@@ -134,6 +179,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return drivebase.getAutonomousCommand(autoChooser.getSelected());
   }
 }
