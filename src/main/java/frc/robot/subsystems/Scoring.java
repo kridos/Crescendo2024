@@ -411,10 +411,10 @@ public class Scoring extends SubsystemBase {
                 }
             }
         } else {
-            if (getLaserDistance() <= 50 /* mm */ && getIntakeState() != Constants.IntakeState.HAS_NOTE) {
+            if (getLaserDistance() <= 5 /* mm */ && getIntakeState() != Constants.IntakeState.HAS_NOTE) {
                 setIntakeState(Constants.IntakeState.HAS_NOTE);
                 setStateRobotWhenIntaking(getState());
-            } else if (getLaserDistance() > 50) {
+            } else if (getLaserDistance() > 5) {
                 setIntakeState(Constants.IntakeState.NO_NOTE);
                 // setStateRobotWhenIntaking(Constants.ScoringPos.SOURCE); // default state
             }

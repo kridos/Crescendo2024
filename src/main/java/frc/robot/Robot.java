@@ -66,7 +66,7 @@ public class Robot extends LoggedRobot {
     
     System.out.println("\n________"); // just a divider
   
-    m_robotContainer.score.logStickyFaults(); // Log sticky faults
+    //m_robotContainer.score.logStickyFaults(); // Log sticky faults
     m_robotContainer.logClimbStickyFaults();
     
     
@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     m_robotContainer.climbSub.enablePid(false);
-    m_robotContainer.score.goToPosition(Constants.ScoringPos.CLIMB);
+    //m_robotContainer.score.goToPosition(Constants.ScoringPos.CLIMB);
 
     NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0);
 
@@ -115,8 +115,8 @@ public class Robot extends LoggedRobot {
   @Override
   public void teleopInit() {
 
-    m_robotContainer.score.ext.runAndResetEncoder();
-    m_robotContainer.score.goToPosition(Constants.ScoringPos.CLIMB);
+    //m_robotContainer.score.ext.runAndResetEncoder();
+    //m_robotContainer.score.goToPosition(Constants.ScoringPos.CLIMB);
     
     m_robotContainer.climbSub.enablePid(false);
 

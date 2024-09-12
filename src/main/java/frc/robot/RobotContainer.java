@@ -4,13 +4,17 @@
 
 package frc.robot;
 
+import java.io.File;
+
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.IntakingCommand;
 import frc.robot.commands.ResetClimbCommand;
@@ -27,10 +32,11 @@ import frc.robot.commands.TimedIntakeSetPowerCommand;
 import frc.robot.subsystems.Climb;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Scoring;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class RobotContainer {
   public final Scoring score = new Scoring();
-  public final Limelight servo = new Limelight(score);
+  //public final Limelight servo = new Limelight(score);
   public final Climb climbSub = new Climb();
 
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -38,7 +44,24 @@ public class RobotContainer {
   CommandXboxController armController = new CommandXboxController(1);
   CommandXboxController testingController = new CommandXboxController(2);
 
+  SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/neo"));
+
   private void configureBindings() {
+
+    // Applies deadbands and inverts controls because joysticks
+    // are back-right positive while robot
+    // controls are front-left positive
+    // left stick controls translation
+    // right stick controls the angular velocity of the robot
+    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
+        () -> MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> driverController.getRightX());
+    
+    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+
+    driverController.y().onTrue(new InstantCommand(() -> drivebase.zeroGyro()));
+
     driverController.povDown().onTrue(new InstantCommand(() -> 
       score.ext.setTargetInches(score.ext.getTargetInches() - 2)));
 
