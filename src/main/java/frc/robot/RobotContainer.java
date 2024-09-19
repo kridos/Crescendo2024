@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,6 +61,7 @@ public class RobotContainer {
     autoChooser.addOption("Center + Preload", "CenterFirst");
     autoChooser.addOption("Preload No Exit", "PreloadScoreAlignNoExit");
     autoChooser.addOption("corcle Auto", "corcle Auto");
+    autoChooser.addOption("RK - Preload testing", "RKPreloadTest");
 
     autoChooser.setDefaultOption("Preload + Close", "TwoNoteAlign");
 
@@ -67,7 +69,6 @@ public class RobotContainer {
 
     Command armStore = new ScoringCommand(score, Constants.ScoringPos.STORE);
     Command armAmp = new ScoringCommand(score, Constants.ScoringPos.AMP);
-    ;
     Command armGround = new SequentialCommandGroup(
         new ScoringCommand(score, Constants.ScoringPos.GROUND),
         new IntakingCommand(score, 12));
@@ -99,9 +100,9 @@ public class RobotContainer {
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverController.getRightX());
+        () -> MathUtil.applyDeadband(-driverController.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
+        () -> MathUtil.applyDeadband(-driverController.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
+        () -> -driverController.getRightX());
     
     drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
 
@@ -161,7 +162,6 @@ public class RobotContainer {
     armController.rightBumper().onTrue(new InstantCommand(() -> score.ext.runAndResetEncoder()));
 
     armController.rightStick().onTrue(new InstantCommand( () -> score.setUseVelocityIntake(!score.getUseVelocityIntake()))); // I think this is on click
-
     /* GET DRIVE MOTOR ETC.
     SwerveDrivetrain drive = new SwerveDrivetrain(null, null);
     drive.getModule(0).getDriveMotor();

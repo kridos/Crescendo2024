@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.65,
-      "y": 7.4
+      "x": 0.5996586030261917,
+      "y": 7.717441283670014
     },
     "rotation": -90.0
   },
@@ -12,15 +12,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "ResetExt"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "LeftStartToAmpAlign"
+            "pathName": "StartToNote"
           }
         },
         {
@@ -30,21 +24,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "ForwardTiny"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.5
+            "pathName": "ExitToAmp"
           }
         },
         {
@@ -54,15 +36,15 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "ArmStore"
+            "pathName": "AmpOutOfCommun"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "ExitStartingAlign2"
+            "name": "ArmStore"
           }
         }
       ]
