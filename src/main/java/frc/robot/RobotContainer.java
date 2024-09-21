@@ -146,14 +146,14 @@ public class RobotContainer {
         new InstantCommand(() -> score.arm.setState(Constants.RobotState.CLIMBING)),
         new ScoringCommand(score, Constants.ScoringPos.STORE), 
         new WaitCommand(0.5),
-        new ClimbCommand(climbSub, 90)
+        new ClimbCommand(climbSub, 10)
     ));
     armController.pov(0).onTrue(new ParallelCommandGroup(
-        new ClimbCommand(climbSub, 90),
+        new ClimbCommand(climbSub, 80),
         new ScoringCommand(score, Constants.ScoringPos.CLIMB)
     ));
     armController.pov(270).onTrue(new SequentialCommandGroup(
-        new ClimbCommand(climbSub, 25),
+        new ClimbCommand(climbSub, 60),
         new InstantCommand(() -> score.arm.setState(Constants.RobotState.DEFAULT))
     ));
 
@@ -175,8 +175,7 @@ public class RobotContainer {
   }
 
   public void logClimbStickyFaults() {
-    climbSub.logMotorLeftStickyFaults();
-    climbSub.logMotorRightStickyFaults();
+    
   }
 
   public Command getAutonomousCommand() {
