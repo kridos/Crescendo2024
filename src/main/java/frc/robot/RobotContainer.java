@@ -55,15 +55,15 @@ public class RobotContainer {
   private void setupAuto() {
     autoChooser = new SendableChooser<String>();
     autoChooser.addOption("Drive Forward (no scoring)", "ExitStarting");
-    autoChooser.addOption("Preload Only", "PreloadScoreAlign");
-    autoChooser.addOption("Preload + Center", "PreloadGrabCenter");
-    autoChooser.addOption("Preload + Close", "TwoNoteAlign");
-    autoChooser.addOption("Center + Preload", "CenterFirst");
-    autoChooser.addOption("Preload No Exit", "PreloadScoreAlignNoExit");
-    autoChooser.addOption("corcle Auto", "corcle Auto");
+    // autoChooser.addOption("Preload Only", "PreloadScoreAlign");
+    // autoChooser.addOption("Preload + Center", "PreloadGrabCenter");
+    // autoChooser.addOption("Preload + Close", "TwoNoteAlign");
+    // autoChooser.addOption("Center + Preload", "CenterFirst");
+    // autoChooser.addOption("Preload No Exit", "PreloadScoreAlignNoExit");
+    // autoChooser.addOption("corcle Auto", "corcle Auto");
     autoChooser.addOption("RK - Preload testing", "RKPreloadTest");
-
-    autoChooser.setDefaultOption("Preload + Close", "TwoNoteAlign");
+    autoChooser.addOption("Preload exit", "Preload exit");
+    autoChooser.setDefaultOption("Amp Drop preload", "RKPreloadTest");
 
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -142,20 +142,20 @@ public class RobotContainer {
 
     // Climber
     armController.pov(180).onTrue(new ClimbCommand(climbSub, 0));
-    armController.pov(90).onTrue(new SequentialCommandGroup(
-        new InstantCommand(() -> score.arm.setState(Constants.RobotState.CLIMBING)),
-        new ScoringCommand(score, Constants.ScoringPos.STORE), 
-        new WaitCommand(0.5),
-        new ClimbCommand(climbSub, 10)
-    ));
+    // armController.pov(90).onTrue(new SequentialCommandGroup(
+    //     new InstantCommand(() -> score.arm.setState(Constants.RobotState.CLIMBING)),
+    //     new ScoringCommand(score, Constants.ScoringPos.STORE), 
+    //     new WaitCommand(0.5),
+    //     new ClimbCommand(climbSub, 10)
+    // ));
     armController.pov(0).onTrue(new ParallelCommandGroup(
-        new ClimbCommand(climbSub, 80),
+        new ClimbCommand(climbSub, 87),
         new ScoringCommand(score, Constants.ScoringPos.CLIMB)
     ));
-    armController.pov(270).onTrue(new SequentialCommandGroup(
-        new ClimbCommand(climbSub, 60),
-        new InstantCommand(() -> score.arm.setState(Constants.RobotState.DEFAULT))
-    ));
+    // armController.pov(270).onTrue(new SequentialCommandGroup(
+    //     new ClimbCommand(climbSub, 60),
+    //     new InstantCommand(() -> score.arm.setState(Constants.RobotState.DEFAULT))
+    // ));
 
     armController.leftBumper().onTrue(new ResetClimbCommand(climbSub));
 

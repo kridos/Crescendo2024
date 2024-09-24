@@ -130,12 +130,12 @@ public class Climb extends SubsystemBase {
    */
   public void updatePID() {
     double leftPower = leftClimbController.calculate(getLeftPosition());
-    leftPower = MathUtil.clamp(leftPower, -1, 1);
+    leftPower = MathUtil.clamp(leftPower, -10, 8);
     //SmartDashboard.putNumber("Left Climb power", leftPower);
     setLeftVoltage(leftPower);
 
     double rightPower = rightClimbController.calculate(getRightPosition());
-    rightPower = MathUtil.clamp(rightPower, -1, 1);
+    rightPower = MathUtil.clamp(rightPower, -10, 8);
     //SmartDashboard.putNumber("Right Climb power", rightPower);
     setRightVoltage(rightPower);
   }
@@ -205,7 +205,7 @@ public class Climb extends SubsystemBase {
     // Set voltage to 0 and reset encoder if either module is going down and the limit switch trips 
     if (getLeftLimitSwitch() && leftMotorVoltage < 0) {
       leftMotorVoltage = 0;
-      leftEncoder.setPosition(0);
+      leftEncoder.setPosition(-7);
     }
     if (getRightLimitSwitch() && rightMotorVoltage < 0) {
       rightMotorVoltage = 0;
