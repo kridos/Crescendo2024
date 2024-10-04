@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -6,32 +7,33 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.BitToStickyfaultString;
 import frc.robot.Constants;
 
-import com.revrobotics.CANSparkFlex;
+import org.littletonrobotics.junction.Logger;
+
+import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkLimitSwitch;
 
 /**
  * Manages two climber modules with independent limit switches and PID controllers
  */
 public class Climb extends SubsystemBase {
-  CANSparkFlex leftClimb;
-  CANSparkFlex rightClimb;
+  CANSparkMax leftClimb;
+  CANSparkMax rightClimb;
   RelativeEncoder leftEncoder;
   RelativeEncoder rightEncoder;
   PIDController leftClimbController;
   PIDController rightClimbController;
-  SparkLimitSwitch leftLimitSwitch;
-  SparkLimitSwitch rightLimitSwitch;
+  DigitalInput leftLimitSwitch;
+  DigitalInput rightLimitSwitch;
   private double leftMotorVoltage;
   private double rightMotorVoltage;
   private boolean runPid;
-  private boolean rightStopped, leftStopped;
+  private boolean stopped;
   
   /**
    * Creates a new Climb subsystem
@@ -42,17 +44,20 @@ public class Climb extends SubsystemBase {
     leftMotorVoltage = 0;
     rightMotorVoltage = 0;
 
-    leftStopped = true;
-    rightStopped = true;
-
-    leftClimb = new CANSparkFlex(Constants.lClimberId, MotorType.kBrushless);
-    rightClimb = new CANSparkFlex(Constants.rClimberId, MotorType.kBrushless);
+    leftClimb = new CANSparkMax(Constants.lClimberId, MotorType.kBrushless);
+    rightClimb = new CANSparkMax(Constants.rClimberId, MotorType.kBrushless);
 
     leftClimb.setSmartCurrentLimit(40);
     rightClimb.setSmartCurrentLimit(40);
 
+    leftClimb.setInverted(false);
+    rightClimb.setInverted(false);
+
     leftEncoder = leftClimb.getEncoder();
     rightEncoder = rightClimb.getEncoder();
+
+    leftEncoder.setPositionConversionFactor(1);
+    rightEncoder.setPositionConversionFactor(1);
 
     // PID Constants
     leftClimbController = new PIDController(0.5, 0, 0);
@@ -61,8 +66,8 @@ public class Climb extends SubsystemBase {
     leftClimbController.setSetpoint(10);
     rightClimbController.setSetpoint(10);
 
-    leftLimitSwitch = leftClimb.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
-    rightLimitSwitch = rightClimb.getForwardLimitSwitch(SparkLimitSwitch.Type.kNormallyOpen);
+    leftLimitSwitch = new DigitalInput(0);
+    rightLimitSwitch = new DigitalInput(1);
   } 
 
   /**
@@ -72,17 +77,6 @@ public class Climb extends SubsystemBase {
   public void setLeftVoltage(double volts) {
     leftMotorVoltage = volts;
   }
-
-  public void logMotorLeftStickyFaults() {
-    BitToStickyfaultString.getStickyFaultStringRevMotor(leftClimb.getStickyFaults(), "Climb MotorLeft");
-    leftClimb.clearFaults();
-  }
-
-  public void logMotorRightStickyFaults() {
-    BitToStickyfaultString.getStickyFaultStringRevMotor(rightClimb.getStickyFaults(), "Climb MotorRight");
-    rightClimb.clearFaults();
-  }
-
 
   /**
    * Sets a specified voltage to the right climber motor
@@ -127,26 +121,21 @@ public class Climb extends SubsystemBase {
     rightClimbController.setSetpoint(position + 1);
   }
 
-  public boolean isLeftStopped() {
-    return leftStopped;
+  public boolean isStopped() {
+    return stopped;
   }
-  public boolean isRightStopped() {
-    return rightStopped;
-  }
-
-
 
   /**
    * Updates the motor output voltage based on their current position
    */
   public void updatePID() {
     double leftPower = leftClimbController.calculate(getLeftPosition());
-    leftPower = MathUtil.clamp(leftPower, -8, 10);
+    leftPower = MathUtil.clamp(leftPower, -10, 8);
     //SmartDashboard.putNumber("Left Climb power", leftPower);
     setLeftVoltage(leftPower);
 
     double rightPower = rightClimbController.calculate(getRightPosition());
-    rightPower = MathUtil.clamp(rightPower, -8, 10);
+    rightPower = MathUtil.clamp(rightPower, -10, 8);
     //SmartDashboard.putNumber("Right Climb power", rightPower);
     setRightVoltage(rightPower);
   }
@@ -167,7 +156,7 @@ public class Climb extends SubsystemBase {
    */
   public boolean getLeftLimitSwitch() {
     try {
-      return leftLimitSwitch.isPressed();
+      return !leftLimitSwitch.get();
     } catch (NullPointerException e) {
       e.printStackTrace();
     }
@@ -180,7 +169,7 @@ public class Climb extends SubsystemBase {
    */
   public boolean getRightLimitSwitch() {
     try {
-      return rightLimitSwitch.isPressed();
+      return !rightLimitSwitch.get();
     } catch (NullPointerException e) {
       e.printStackTrace();
     }
@@ -212,25 +201,25 @@ public class Climb extends SubsystemBase {
     if (runPid) {
       updatePID();
     }
-    
-    if (Math.abs(leftMotorVoltage) > 0) {
-      // Set voltage to 0 and reset encoder if either module is going down and the limit switch trips 
-      if (getLeftLimitSwitch() && leftMotorVoltage < 0) {
-        leftMotorVoltage = 0;
-        leftEncoder.setPosition(0);
-        leftStopped = true;
-        
-      }
-      
-    } 
 
-    if (Math.abs(rightMotorVoltage) > 0) {
-      if (getRightLimitSwitch() && rightMotorVoltage < 0) {
-        rightMotorVoltage = 0;
-        rightEncoder.setPosition(0);
-        rightStopped = true;
-      }
+    // Set voltage to 0 and reset encoder if either module is going down and the limit switch trips 
+    if (getLeftLimitSwitch() && leftMotorVoltage < 0) {
+      leftMotorVoltage = 0;
+      leftEncoder.setPosition(-7);
     }
+    if (getRightLimitSwitch() && rightMotorVoltage < 0) {
+      rightMotorVoltage = 0;
+      rightEncoder.setPosition(0);
+    }
+
+    stopped = leftMotorVoltage == 0 && rightMotorVoltage == 0;
+
+    // Update motor voltages
+    leftClimb.setVoltage(leftMotorVoltage);
+    rightClimb.setVoltage(rightMotorVoltage);
+
+    Logger.recordOutput("Climb/LeftPosition", getLeftPosition());
+    Logger.recordOutput("Climb/RightPosition", getRightPosition());
 
 
     /* 

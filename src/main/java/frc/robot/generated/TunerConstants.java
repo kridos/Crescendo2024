@@ -35,7 +35,7 @@ public class TunerConstants {
     private static final ClosedLoopOutputType steerClosedLoopOutput = ClosedLoopOutputType.Voltage;
     // The closed-loop output type to use for the drive motors;
     // This affects the PID/FF gains for the drive motors
-    private static final ClosedLoopOutputType driveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+    private static final ClosedLoopOutputType driveClosedLoopOutput = ClosedLoopOutputType.TorqueCurrentFOC;
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
@@ -48,7 +48,7 @@ public class TunerConstants {
             new CurrentLimitsConfigs()
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(60)
+                .withStatorCurrentLimit(20)
                 .withStatorCurrentLimitEnable(true)
         );
     private static final TalonFXConfiguration steerInitialConfigs = new TalonFXConfiguration()
