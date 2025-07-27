@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This repository contains the control system code for our robot competing in the FIRST Robotics Competition (FRC) Crescendo Season (2024). This is a forked repository, reflecting my contributions to the official team codebase. The codebase leverages the WPILib framework and Java programming to empower the robot with functionalities crucial for achieving competition success.
+This repository contains the control system code for team 9450 (Velocity Raptors) competing in the FIRST Robotics Competition (FRC) Crescendo Season (2024). This is a forked repository, reflecting my contributions to the official team codebase. The codebase leverages the WPILib framework and Java programming to empower the robot with functionalities crucial for achieving competition success.
 
 ## Key Features & Functionalities
 
@@ -43,6 +43,11 @@ This codebase reflects the dedication and collaborative effort of our FRC team. 
 * **Modularity and Maintainability:** Code is structured for modularity and maintainability, facilitating efficient updates, troubleshooting, and future development.
 
 * **Code Documentation:** Clear and concise comments document the codebase, enhancing readability and fostering understanding for current and future team members.
+
+## Associated Team
+* **FRC Team 9450 (Velocity Raptors)**
+
+
 
 ## Original Repository
 
