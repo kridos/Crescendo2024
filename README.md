@@ -47,7 +47,12 @@ This codebase reflects the dedication and collaborative effort of our FRC team. 
 ## Associated Team
 * **FRC Team 9450 (Velocity Raptors)**
 
+## Related Robotics Projects
 
+I have also contributed to the control systems for my previous FIRST Tech Challenge (FTC) teams during the Freight Frenzy (2022) and Power Play (2023) seasons. This work involved developing autonomous routines, integrating various sensors, and implementing motor control for competitive robotics.
+
+You can find a forked repository for my previous FTC team's code here:
+<https://github.com/kridos/FtcRobotController>
 
 ## Original Repository
 
